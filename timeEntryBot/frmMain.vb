@@ -1,12 +1,13 @@
 ﻿Imports System.Xml
-Imports timeEntryBot.Helpers
+Imports System.Environment
+Imports timeEntryBot.Helpers.XmlHelper
 Imports timeEntryBot.DataValidationHelpers
 Imports timeEntryBot.Models
 Imports timeEntryBot.Globals
 Imports timeEntryBot.RegistryHelpers
 
 Public Class FrmMain
-    Public XmlFilePath As String = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() + "\TimeEntryBot\"
+    Public XmlFilePath As String = GetFolderPath(SpecialFolder.ApplicationData) & "\TimeEntryBot"
     Public XmlFileName As String = "Engagements.xml"
 
 #Region "Form-wide Actions"
@@ -14,19 +15,7 @@ Public Class FrmMain
         AddressNulls()
         GetPrefs()
         loadPrefs()
-
-        lblUserMessages.Visible = False
-        txtHours.Text = 8 'Default to 8 hours
-
-        '''''''TESTING 
-        'txtName.Text = "TEST"
-        'txtClient.Text = "123456"
-        'txtAssgn.Text = "1234"
-        'txtHours.Text = "3"
-        'txtLocation.Text = "123"
-        '''''''TESTING
-
-        'Load saved engagement combo box
+        CreateFirstEngagement()
         LoadSavedCodeList()
     End Sub
 
@@ -46,6 +35,23 @@ Public Class FrmMain
 
 #End Region
 
+#Region "Thread-safe GUI Updaters"
+    Public Delegate Sub setStatusSafeCallback([theText] As String)
+
+    Private Sub setStatusSafe([theText] As String)
+        Try
+            If Me.mainStatus.InvokeRequired Then
+                Dim d As New setStatusSafeCallback(AddressOf setStatusSafe)
+                Invoke(d, New Object() {[theText]})
+                d = Nothing
+            Else
+                statusLabel.Text = theText
+                mainStatus.Refresh()
+            End If
+        Catch exAll As Exception : End Try
+    End Sub
+#End Region
+
 #Region "Registry"
     'hadda put this stuff here instead of the registryHelpers bc couldn't figure out any other way
 
@@ -61,13 +67,13 @@ Public Class FrmMain
             txtLocation.Text = LocationCode
             txtHours.Text = Hours
             txtURL.Text = SiteURL
-            txtUser.Text = Username
+            txtUser.Text = UserN
             txtPass.Text = Password
             txtName.Text = AliasName
 
         Catch exAll As Exception
             Debug.Print("CAUGHT ERROR IN loadPrefs: " & exAll.Message)
-            MsgBox("An error has occurred when loading the bot's preferences.  Please close and reopen this bot and try again.", vbCritical, TITLE & " v" & VERSION)
+            MsgBox("An error has occurred when loading the bot's preferences.  Please close and reopen this bot and try again.", vbCritical, TITLE & " v" & Globals.VERSION)
         End Try
     End Sub
 
@@ -82,20 +88,22 @@ Public Class FrmMain
                 .SetValue(REGISTRYFOLDER, "LocationCode", txtLocation.Text)
                 .SetValue(REGISTRYFOLDER, "Hours", txtHours.Text)
                 .SetValue(REGISTRYFOLDER, "SiteURL", txtURL.Text)
-                .SetValue(REGISTRYFOLDER, "Username", txtUser.Text)
+                .SetValue(REGISTRYFOLDER, "UserN", txtUser.Text)
                 .SetValue(REGISTRYFOLDER, "Password", txtPass.Text)
                 .SetValue(REGISTRYFOLDER, "AliasName", txtName.Text)
             End With
 
         Catch exAll As Exception
             Debug.Print("CAUGHT ERROR IN savePrefs: " & exAll.Message)
-            MsgBox("An error has occurred when saving the bot's preferences.  Please close and reopen this bot and try again.", vbCritical, TITLE & " v" & VERSION)
+            MsgBox("An error has occurred when saving the bot's preferences.  Please close and reopen this bot and try again.", vbCritical, TITLE & " v" & Globals.VERSION)
         End Try
 
     End Sub
 #End Region
 
+#Region "Click Handlers"
     Private Sub btnNow_Click(sender As Object, e As EventArgs) Handles btnNow.Click
+        Proceed = True
         checkForText(txtURL)
         checkForText(txtUser)
         checkForText(txtPass)
@@ -117,9 +125,20 @@ Public Class FrmMain
     End Sub
 
     Private Sub btnScheduled_Click(sender As Object, e As EventArgs) Handles btnScheduled.Click
-        savePrefs()
-        GetPrefs()
-        Throw New NotImplementedException
+        Proceed = True
+        checkForText(txtURL)
+        checkForText(txtUser)
+        checkForText(txtPass)
+        checkForText(txtName)
+        checkForText(txtClient)
+        checkForText(txtAssgn)
+        checkForNumber(txtHours, 1, 16)
+        checkForText(txtLocation)
+        If Proceed Then
+            savePrefs()
+            GetPrefs()
+            Throw New NotImplementedException
+        End If
     End Sub
 
     Private Sub btn_SaveClient_Click(sender As Object, e As EventArgs) Handles btn_SaveClient.Click
@@ -127,20 +146,34 @@ Public Class FrmMain
         GetPrefs()
         Dim eng As New Engagement(txtName.Text, txtClient.Text, txtAssgn.Text, txtHours.Text, txtLocation.Text)
 
-        XmlHelper.WriteXmlFile(XmlFilePath, XmlFileName, eng)
-        lblUserMessages.Visible = True
-        lblUserMessages.Text = "Client Code Saved"
+        WriteXmlFile(XmlFilePath, XmlFileName, eng)
+        setStatusSafe("Client Code Saved")
         'Load saved engagement combo box
         LoadSavedCodeList()
     End Sub
 
     Private Sub btnDeleteClient_Click(sender As Object, e As EventArgs) Handles btnDeleteClient.Click
         Dim selectedName As String = txtName.Text
-        XmlHelper.DeleteEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
-        lblUserMessages.Text = "Client Code Deleted"
+        DeleteEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
+        setStatusSafe("Client Code Deleted")
         'Load saved engagement combo box
         LoadSavedCodeList()
         ClearEngagementBoxes()
+    End Sub
+#End Region
+
+#Region "Engagement Combobox"
+
+    ''' <summary>
+    ''' This creates the user's first engagement based on default values, to prevent errors on first load of the tool
+    ''' </summary>
+    Private Sub CreateFirstEngagement()
+        If Not IO.Directory.Exists(XmlFilePath) Then MkDir(XmlFilePath)
+        Dim engagement As New Engagement(txtName.Text, txtClient.Text, txtAssgn.Text, txtHours.Text, txtLocation.Text)
+        WriteXmlFile(XmlFilePath, XmlFileName, engagement)
+        LoadSavedCodeList()
+        cmbSavedCodeList.Text = cmbSavedCodeList.Items(0).ToString
+        setStatusSafe("")
     End Sub
 
     Private Sub ClearEngagementBoxes()
@@ -149,39 +182,43 @@ Public Class FrmMain
         txtAssgn.Text = ""
         txtHours.Text = ""
         txtLocation.Text = ""
+        cmbSavedCodeList.Text = String.Empty
     End Sub
-
-
-
-#Region "Combobox"
     Private Sub LoadSavedCodeList()
-        'Clear the old list so we can rebuild it
-        cmbSavedCodeList.Items.Clear()
-
-        'Now loop through the XML to build the list again
-        Dim xmlNodeList As IEnumerable = XmlHelper.ReadElementsFromFile(XmlFilePath, XmlFileName)
-        For Each nNode As XmlNode In xmlNodeList
-            ''-For Each nChildNode As XmlNode In nNode.ChildNodes
+        cmbSavedCodeList.Items.Clear() 'Clear the old list so we can rebuild it
+        Dim xmlNodeList As IEnumerable = ReadElementsFromFile(XmlFilePath, XmlFileName)
+        For Each nNode As XmlNode In xmlNodeList 'Now loop through the XML to build the list again
             cmbSavedCodeList.Items.Add(nNode.Attributes(0).InnerText)
-            ''Next
         Next
     End Sub
 
     Private Sub cmbSavedCodeList_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbSavedCodeList.SelectedIndexChanged
         Dim selectedName As String = cmbSavedCodeList.SelectedItem
         LoadAssignmentInformation(selectedName)
-        lblUserMessages.Visible = True
-        lblUserMessages.Text = "Saved Client Code Loaded"
+        setStatusSafe("Saved Client Code Loaded")
     End Sub
 
     Private Sub LoadAssignmentInformation(selectedName As String)
-        Dim eng As Engagement = XmlHelper.FindEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
+        Dim eng As Engagement = FindEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
         txtName.Text = eng.Name
         txtClient.Text = eng.ClientCode
         txtAssgn.Text = eng.AssignmentCode
         txtHours.Text = eng.HoursPerDay
         txtLocation.Text = eng.Location
     End Sub
+
+    Private Sub btnSaveSettings_Click(sender As Object, e As EventArgs) Handles btnSaveSettings.Click
+        Proceed = True
+        checkForText(txtURL)
+        checkForText(txtUser)
+        checkForText(txtPass)
+        If Proceed Then
+            savePrefs()
+            GetPrefs()
+            setStatusSafe("Time Site Settings Saved")
+        End If
+    End Sub
+
 #End Region
 
 End Class

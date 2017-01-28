@@ -4,7 +4,7 @@
     Public Shared LocationCode As String
     Public Shared Hours As Short
     Public Shared SiteURL As String
-    Public Shared Username As String
+    Public Shared UserN As String
     Public Shared Password As String
     Public Shared AliasName As String
 

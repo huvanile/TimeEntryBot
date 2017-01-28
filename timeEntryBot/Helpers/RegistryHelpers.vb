@@ -30,9 +30,9 @@ Public Class RegistryHelpers
             If My.Computer.Registry.GetValue(REGISTRYFOLDER, "SiteURL", Nothing) Is Nothing _
                 Or My.Computer.Registry.GetValue(REGISTRYFOLDER, "SiteURL", Nothing) = "" _
                 Then My.Computer.Registry.SetValue(REGISTRYFOLDER, "SiteURL", "https://cms.gt.com")
-            If My.Computer.Registry.GetValue(REGISTRYFOLDER, "Username", Nothing) Is Nothing _
-                Or My.Computer.Registry.GetValue(REGISTRYFOLDER, "Username", Nothing) = "" _
-                Then My.Computer.Registry.SetValue(REGISTRYFOLDER, "Username", "USXXXXX") 'should this be this way? //TODO: Test
+            If My.Computer.Registry.GetValue(REGISTRYFOLDER, "UserN", Nothing) Is Nothing _
+                Or My.Computer.Registry.GetValue(REGISTRYFOLDER, "UserN", Nothing) = "" _
+                Then My.Computer.Registry.SetValue(REGISTRYFOLDER, "UserN", "USXXXXX") 'should this be this way? //TODO: Test
             If My.Computer.Registry.GetValue(REGISTRYFOLDER, "Password", Nothing) Is Nothing _
                 Or My.Computer.Registry.GetValue(REGISTRYFOLDER, "Password", Nothing) = "" _
                 Then My.Computer.Registry.SetValue(REGISTRYFOLDER, "Password", "Password")
@@ -53,7 +53,7 @@ Public Class RegistryHelpers
             LocationCode = My.Computer.Registry.GetValue(REGISTRYFOLDER, "LocationCode", Nothing)
             Hours = My.Computer.Registry.GetValue(REGISTRYFOLDER, "Hours", Nothing)
             SiteURL = My.Computer.Registry.GetValue(REGISTRYFOLDER, "SiteURL", Nothing)
-            Username = My.Computer.Registry.GetValue(REGISTRYFOLDER, "Username", Nothing)
+            UserN = My.Computer.Registry.GetValue(REGISTRYFOLDER, "UserN", Nothing)
             Password = My.Computer.Registry.GetValue(REGISTRYFOLDER, "Password", Nothing)
             AliasName = My.Computer.Registry.GetValue(REGISTRYFOLDER, "AliasName", Nothing)
         Catch exAll As Exception
