@@ -7,7 +7,8 @@ Imports timeEntryBot.Globals
 Imports timeEntryBot.RegistryHelpers
 
 Public Class FrmMain
-    Public XmlFilePath As String = GetFolderPath(SpecialFolder.ApplicationData) & "\TimeEntryBot"
+
+    Public XmlFilePath As String = GetFolderPath(SpecialFolder.ApplicationData) & "\TimeEntryBot\"
     Public XmlFileName As String = "Engagements.xml"
 
 #Region "Form-wide Actions"
@@ -155,7 +156,17 @@ Public Class FrmMain
         DeleteEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
         setStatusSafe("Client Code Deleted")
         LoadSavedCodeList() 'Load saved engagement combo box
-        ClearEngagementBoxes()
+        ClearEngagementBoxes()  'Clear out the old values you deleted them
+
+        'Load the first option from your saved file
+        If cmbSavedCodeList.Items.Count > 0 Then
+            cmbSavedCodeList.SelectedIndex = 0
+        End If
+
+        'Save the prefs to clear out the old values
+        savePrefs()
+
+
     End Sub
 #End Region
 
@@ -202,6 +213,7 @@ Public Class FrmMain
         txtAssgn.Text = eng.AssignmentCode
         txtHours.Text = eng.HoursPerDay
         txtLocation.Text = eng.Location
+        savePrefs()
     End Sub
 
     Private Sub btnSaveSettings_Click(sender As Object, e As EventArgs) Handles btnSaveSettings.Click

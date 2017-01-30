@@ -7,27 +7,9 @@ Namespace Models
 
         Sub New()
             Dim xmlNodeList As IEnumerable = XmlHelper.ReadElementsFromFile(FrmMain.XmlFilePath, FrmMain.XmlFileName)
-            For Each nNode As XmlNode In xmlNodeList
-                Dim name = ""
-                Dim clientCode = ""
-                Dim assignmentCode = ""
-                Dim hoursPerDay = ""
-                Dim location = ""
-                For Each nChildNode As XmlNode In nNode.ChildNodes
-                    Select Case nChildNode.Name
-                        Case "Name"
-                            name = nChildNode.InnerText
-                        Case "ClientCode"
-                            clientCode = nChildNode.InnerText
-                        Case "AssignmentCode"
-                            assignmentCode = nChildNode.InnerText
-                        Case "HoursPerDay"
-                            hoursPerDay = nChildNode.InnerText
-                        Case "Location"
-                            location = nChildNode.InnerText
-                    End Select
-                Next
-                Engagements.Add(New Engagement(name, clientCode, assignmentCode, hoursPerDay, location))
+            For Each xmlNode As XmlNode In xmlNodeList
+                Dim eng As Engagement = XmlHelper.GetEngagementFromXmlNode(xmlNode)
+                Engagements.Add(eng)
             Next
         End Sub
     End Class

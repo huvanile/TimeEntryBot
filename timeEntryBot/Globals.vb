@@ -1,4 +1,5 @@
-﻿Public Class Globals
+﻿Imports System.Environment
+Public Class Globals
     Public Shared ClientCode As String
     Public Shared AssgnCode As String
     Public Shared LocationCode As String
