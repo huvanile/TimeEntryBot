@@ -1,4 +1,6 @@
-﻿Imports System.Xml
+﻿Imports System.Collections.ObjectModel
+Imports System.Security.Cryptography.X509Certificates
+Imports System.Xml
 Imports timeEntryBot.Helpers
 Imports timeEntryBot.Models
 
@@ -62,6 +64,13 @@ Public Class FrmMain
 
         'Load saved engagement combo box
         LoadSavedCodeList()
+
+        'IEnumerable engagements = New Engagements
+        'Dim engData = new ObservableCollection(Of Engagement)
+        'For Each eng As Engagement In engagements
+        '    engData.Add(eng)
+        'Next
+        dgvWeek.DataSource = New Engagements()
     End Sub
 
     Private Sub LoadSavedCodeList()
@@ -92,4 +101,5 @@ Public Class FrmMain
         txtHours.Text = eng.HoursPerDay
         txtLocation.Text = eng.Location
     End Sub
+
 End Class

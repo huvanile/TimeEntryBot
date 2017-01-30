@@ -22,6 +22,8 @@ Partial Class FrmMain
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.btnScheduled = New System.Windows.Forms.Button()
@@ -48,7 +50,23 @@ Partial Class FrmMain
         Me.txtPass = New System.Windows.Forms.TextBox()
         Me.txtUser = New System.Windows.Forms.TextBox()
         Me.lblUserMessages = New System.Windows.Forms.Label()
+        Me.dgvWeek = New System.Windows.Forms.DataGridView()
+        Me.EngagementBindingSource = New System.Windows.Forms.BindingSource(Me.components)
+        Me.colName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.ClientCodeDataGridViewTextBoxColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.AssignmentCodeDataGridViewTextBoxColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.HoursPerDayDataGridViewTextBoxColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.LocationDataGridViewTextBoxColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay3 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay4 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay5 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay6 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.colDay7 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.GroupBox1.SuspendLayout
+        CType(Me.dgvWeek,System.ComponentModel.ISupportInitialize).BeginInit
+        CType(Me.EngagementBindingSource,System.ComponentModel.ISupportInitialize).BeginInit
         Me.SuspendLayout
         '
         'Label7
@@ -310,11 +328,133 @@ Partial Class FrmMain
         Me.lblUserMessages.TabIndex = 19
         Me.lblUserMessages.Text = "lblUserMessages"
         '
+        'dgvWeek
+        '
+        Me.dgvWeek.AllowUserToAddRows = false
+        Me.dgvWeek.AllowUserToDeleteRows = false
+        Me.dgvWeek.AutoGenerateColumns = false
+        Me.dgvWeek.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dgvWeek.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.colName, Me.ClientCodeDataGridViewTextBoxColumn, Me.AssignmentCodeDataGridViewTextBoxColumn, Me.HoursPerDayDataGridViewTextBoxColumn, Me.LocationDataGridViewTextBoxColumn, Me.colDay1, Me.colDay2, Me.colDay3, Me.colDay4, Me.colDay5, Me.colDay6, Me.colDay7})
+        Me.dgvWeek.DataSource = Me.EngagementBindingSource
+        Me.dgvWeek.Location = New System.Drawing.Point(290, 58)
+        Me.dgvWeek.Name = "dgvWeek"
+        Me.dgvWeek.ReadOnly = true
+        Me.dgvWeek.Size = New System.Drawing.Size(593, 177)
+        Me.dgvWeek.TabIndex = 20
+        '
+        'EngagementBindingSource
+        '
+        Me.EngagementBindingSource.DataSource = GetType(timeEntryBot.Models.Engagement)
+        '
+        'colName
+        '
+        Me.colName.Frozen = true
+        Me.colName.HeaderText = "Client Name"
+        Me.colName.Name = "colName"
+        Me.colName.ReadOnly = true
+        Me.colName.Width = 200
+        '
+        'ClientCodeDataGridViewTextBoxColumn
+        '
+        Me.ClientCodeDataGridViewTextBoxColumn.DataPropertyName = "ClientCode"
+        Me.ClientCodeDataGridViewTextBoxColumn.HeaderText = "ClientCode"
+        Me.ClientCodeDataGridViewTextBoxColumn.Name = "ClientCodeDataGridViewTextBoxColumn"
+        Me.ClientCodeDataGridViewTextBoxColumn.ReadOnly = true
+        Me.ClientCodeDataGridViewTextBoxColumn.Visible = false
+        '
+        'AssignmentCodeDataGridViewTextBoxColumn
+        '
+        Me.AssignmentCodeDataGridViewTextBoxColumn.DataPropertyName = "AssignmentCode"
+        Me.AssignmentCodeDataGridViewTextBoxColumn.HeaderText = "AssignmentCode"
+        Me.AssignmentCodeDataGridViewTextBoxColumn.Name = "AssignmentCodeDataGridViewTextBoxColumn"
+        Me.AssignmentCodeDataGridViewTextBoxColumn.ReadOnly = true
+        Me.AssignmentCodeDataGridViewTextBoxColumn.Visible = false
+        '
+        'HoursPerDayDataGridViewTextBoxColumn
+        '
+        Me.HoursPerDayDataGridViewTextBoxColumn.DataPropertyName = "HoursPerDay"
+        Me.HoursPerDayDataGridViewTextBoxColumn.HeaderText = "HoursPerDay"
+        Me.HoursPerDayDataGridViewTextBoxColumn.Name = "HoursPerDayDataGridViewTextBoxColumn"
+        Me.HoursPerDayDataGridViewTextBoxColumn.ReadOnly = true
+        Me.HoursPerDayDataGridViewTextBoxColumn.Visible = false
+        '
+        'LocationDataGridViewTextBoxColumn
+        '
+        Me.LocationDataGridViewTextBoxColumn.DataPropertyName = "Location"
+        Me.LocationDataGridViewTextBoxColumn.HeaderText = "Location"
+        Me.LocationDataGridViewTextBoxColumn.Name = "LocationDataGridViewTextBoxColumn"
+        Me.LocationDataGridViewTextBoxColumn.ReadOnly = true
+        Me.LocationDataGridViewTextBoxColumn.Visible = false
+        '
+        'colDay1
+        '
+        Me.colDay1.HeaderText = "SUN"
+        Me.colDay1.Name = "colDay1"
+        Me.colDay1.ReadOnly = true
+        Me.colDay1.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.colDay1.ToolTipText = "Enter the hours worked on Sunday"
+        Me.colDay1.Width = 50
+        '
+        'colDay2
+        '
+        Me.colDay2.HeaderText = "MON"
+        Me.colDay2.Name = "colDay2"
+        Me.colDay2.ReadOnly = true
+        Me.colDay2.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.colDay2.ToolTipText = "Enter the hours worked on Monday"
+        Me.colDay2.Width = 50
+        '
+        'colDay3
+        '
+        Me.colDay3.HeaderText = "TUE"
+        Me.colDay3.Name = "colDay3"
+        Me.colDay3.ReadOnly = true
+        Me.colDay3.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.colDay3.ToolTipText = "Enter the hours worked on Tuesday"
+        Me.colDay3.Width = 50
+        '
+        'colDay4
+        '
+        Me.colDay4.HeaderText = "WED"
+        Me.colDay4.Name = "colDay4"
+        Me.colDay4.ReadOnly = true
+        Me.colDay4.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.colDay4.ToolTipText = "Enter the hours worked on Wednesday"
+        Me.colDay4.Width = 50
+        '
+        'colDay5
+        '
+        Me.colDay5.HeaderText = "THU"
+        Me.colDay5.Name = "colDay5"
+        Me.colDay5.ReadOnly = true
+        Me.colDay5.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.colDay5.ToolTipText = "Enter the hours worked on Thursday"
+        Me.colDay5.Width = 50
+        '
+        'colDay6
+        '
+        Me.colDay6.HeaderText = "FRI"
+        Me.colDay6.Name = "colDay6"
+        Me.colDay6.ReadOnly = true
+        Me.colDay6.ToolTipText = "Enter the hours worked on Friday"
+        Me.colDay6.Width = 50
+        '
+        'colDay7
+        '
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.BottomCenter
+        Me.colDay7.DefaultCellStyle = DataGridViewCellStyle1
+        Me.colDay7.HeaderText = "SAT"
+        Me.colDay7.Name = "colDay7"
+        Me.colDay7.ReadOnly = true
+        Me.colDay7.ToolTipText = "Enter the hours worked on Saturday"
+        Me.colDay7.Width = 50
+        '
         'FrmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(283, 566)
+        Me.ClientSize = New System.Drawing.Size(895, 566)
+        Me.Controls.Add(Me.dgvWeek)
         Me.Controls.Add(Me.lblUserMessages)
         Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.Label6)
@@ -325,6 +465,8 @@ Partial Class FrmMain
         Me.Text = "TimeEntryBot"
         Me.GroupBox1.ResumeLayout(false)
         Me.GroupBox1.PerformLayout
+        CType(Me.dgvWeek,System.ComponentModel.ISupportInitialize).EndInit
+        CType(Me.EngagementBindingSource,System.ComponentModel.ISupportInitialize).EndInit
         Me.ResumeLayout(false)
         Me.PerformLayout
 
@@ -356,4 +498,18 @@ End Sub
     Friend WithEvents Label11 As Label
     Friend WithEvents txtLocation As TextBox
     Friend WithEvents lblUserMessages As Label
+    Friend WithEvents dgvWeek As DataGridView
+    Friend WithEvents colName As DataGridViewTextBoxColumn
+    Friend WithEvents ClientCodeDataGridViewTextBoxColumn As DataGridViewTextBoxColumn
+    Friend WithEvents AssignmentCodeDataGridViewTextBoxColumn As DataGridViewTextBoxColumn
+    Friend WithEvents HoursPerDayDataGridViewTextBoxColumn As DataGridViewTextBoxColumn
+    Friend WithEvents LocationDataGridViewTextBoxColumn As DataGridViewTextBoxColumn
+    Friend WithEvents colDay1 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay2 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay3 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay4 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay5 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay6 As DataGridViewTextBoxColumn
+    Friend WithEvents colDay7 As DataGridViewTextBoxColumn
+    Friend WithEvents EngagementBindingSource As BindingSource
 End Class
