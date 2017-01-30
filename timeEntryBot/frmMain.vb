@@ -40,7 +40,7 @@ Public Class FrmMain
 
     Private Sub setStatusSafe([theText] As String)
         Try
-            If Me.mainStatus.InvokeRequired Then
+            If mainStatus.InvokeRequired Then
                 Dim d As New setStatusSafeCallback(AddressOf setStatusSafe)
                 Invoke(d, New Object() {[theText]})
                 d = Nothing
@@ -117,10 +117,10 @@ Public Class FrmMain
             GetPrefs()
             Dim browser As New Browser
             browser.LoadCMS()
-            browser.LoadTimePage()
-            If Not browser.IsCodeVisible Then
-                '
-            End If
+            browser.LoadTimePages()
+            setStatusSafe("Entering hours for engagement")
+            browser.EnterTimeForWeek()
+        Else
         End If
     End Sub
 
@@ -145,19 +145,16 @@ Public Class FrmMain
         savePrefs()
         GetPrefs()
         Dim eng As New Engagement(txtName.Text, txtClient.Text, txtAssgn.Text, txtHours.Text, txtLocation.Text)
-
         WriteXmlFile(XmlFilePath, XmlFileName, eng)
         setStatusSafe("Client Code Saved")
-        'Load saved engagement combo box
-        LoadSavedCodeList()
+        LoadSavedCodeList() 'Load saved engagement combo box
     End Sub
 
     Private Sub btnDeleteClient_Click(sender As Object, e As EventArgs) Handles btnDeleteClient.Click
         Dim selectedName As String = txtName.Text
         DeleteEngagementNodeByName(XmlFilePath, XmlFileName, selectedName)
         setStatusSafe("Client Code Deleted")
-        'Load saved engagement combo box
-        LoadSavedCodeList()
+        LoadSavedCodeList() 'Load saved engagement combo box
         ClearEngagementBoxes()
     End Sub
 #End Region
