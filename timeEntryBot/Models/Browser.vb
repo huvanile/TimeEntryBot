@@ -1,23 +1,49 @@
-﻿Imports mshtml
-Imports System.Text
-Imports System.Windows.Forms
+﻿Imports timeEntryBot.Helpers.CMSHelpers
 
 Public Class Browser
-    Private _ie As Object
-    Private _html As String
-    Private _allElements As mshtml.IHTMLElementCollection
+    Private _ie As SHDocVw.InternetExplorer
+    Private _periodStart As String
+    Private _periodEnd As String
+    Private _timeKeeperUno As String
+    Private _todayDate As String
+    Private _tgIFrameDoc As mshtml.IHTMLDocument2
+    Private _codeAlreadyPresent As Boolean
 
+#Region "Contstructors"
     Sub New()
-        _ie = New Object
+        _ie = Nothing
+        _tgIFrameDoc = Nothing
+        _timeKeeperUno = ""
+        _todayDate = Format(Date.Now(), "yyyy-MM-dd")
+        _periodEnd = getPeriodEnd()
+        _periodStart = getPeriodStart()
         _ie = CreateObject("InternetExplorer.Application")
         _ie.Visible = True '''''''
     End Sub
+#End Region
 
-#Region "Answer Questions"
-    Public Function IsCodeVisible()
+#Region "Properties"
 
-    End Function
+    ''' <summary>
+    ''' determines if the assgn and client code the user specified is already present in the site
+    ''' </summary>
+    ''' <returns>boolean</returns>
+    Public ReadOnly Property CodeAlreadyPresent As Boolean
+        Get
+            Return _codeAlreadyPresent
+        End Get
+    End Property
 
+    ''' <summary>
+    ''' CMS has a separate ID for each user that doesn't match the domain user ID
+    ''' We need to grab this ID for future use
+    ''' </summary>
+    ''' <returns>CMS's "timekeeperuno" field for the user</returns>
+    Public ReadOnly Property TimeKeeperUno As String
+        Get
+            Return _timeKeeperUno
+        End Get
+    End Property
 #End Region
 
 #Region "Actions"
@@ -27,30 +53,79 @@ Public Class Browser
     End Sub
 
     Private Sub waitForPageLoad()
+        Threading.Thread.Sleep(1000)
         Do While _ie.Busy Or _ie.ReadyState <> 4
-            Threading.Thread.Sleep(500)
+            Threading.Thread.Sleep(2000)
         Loop
     End Sub
 
-    Public Sub LoadTimePage()
-        Dim tdCollection As Object = _ie.Document.GetElementsByTagName("td")
-        For Each element As Object In tdCollection
-            If element.GetAttribute("title") = "Time" Then
-                element.Children(0).click
-                Exit For
-            End If
-        Next
+    Public Sub LoadTimePages()
+        _ie.Navigate("https://cms.gt.com/cmsnet/time/architecture/multiviewshell.aspx?Host=CMSNET")
 
         waitForPageLoad()
 
-        Dim wc As New Net.WebClient
-        Dim bHTML() As Byte = wc.DownloadData(_ie.address) 'bytes of html (not usable yet)
-        _html = New UTF8Encoding().GetString(bHTML)
-        Dim doc As mshtml.IHTMLDocument2 = New mshtml.HTMLDocument
-        doc.clear()
-        doc.write(_html)
-        _allElements = doc.all
-        doc.close()
+        _timeKeeperUno = getTimeKeeperUno(_ie.Document.body.outerhtml)
+
+        Dim mvfsIFrameDoc As mshtml.IHTMLDocument2 = _ie.Document.getElementsbyTagName("iframe")(0).contentWindow.document 'iframe containing multiviewframeset.ASPX
+
+        'navigate to teh correct week if needed (gridview contains the week heading and nav buttons)
+        If mvfsIFrameDoc.getelementsbyTagName("frame")(0).src.ToString <> "../gridview/gridview.aspx?Host=CMSNET&periodTarget=" & getPeriodStart() & "&timeKeeperUno=" & _timeKeeperUno & "&todayDate=" & Format(Date.Now(), "yyyy-MM-dd") Then
+            mvfsIFrameDoc.getelementsbyTagName("frame")(0).navigate("https://cms.gt.com/cmsnet/time/gridview/gridview.aspx?Host=CMSNET&periodTarget=" & getPeriodStart() & "&timeKeeperUno=" & _timeKeeperUno & "&todayDate=" & Format(Date.Now(), "yyyy-MM-dd"))
+            waitForPageLoad()
+        End If
+
+        Dim gvFrameDoc As mshtml.IHTMLDocument2 = mvfsIFrameDoc.getelementsbyTagName("frame")(0).contentwindow.document 'first frame in multiviewframeset, contains gridview
+
+        'the tgIFrameDoc is where the actual client names and time entries are 
+        waitForPageLoad()
+        _tgIFrameDoc = gvFrameDoc.getelementsbyTagName("iframe")(0).contentwindow.document 'first iframe in gridview, contains timegrid
+
+        If IsCodeVisible(_tgIFrameDoc.body.outerHTML) Then _codeAlreadyPresent = True Else _codeAlreadyPresent = False
+
+    End Sub
+
+    Public Sub EnterTimeForWeek()
+        For x As Short = 1 To 5
+            waitForPageLoad()
+            EnterTimeForDay(Format(CDate(_periodStart).AddDays(x), "MM/dd/yyyy"))
+        Next x
+    End Sub
+
+    Private Sub EnterTimeForDay(theDay As String)
+        _ie.Document.getelementbyid("NewTimeEntry_Image").click
+        waitForPageLoad()
+        Dim mvfsIFrameDoc As mshtml.IHTMLDocument2 = _ie.Document.getElementsbyTagName("iframe")(0).contentWindow.document 'iframe containing multiviewframeset.ASPX
+        Dim mvdFrameDoc As mshtml.IHTMLDocument2 = mvfsIFrameDoc.getelementsbytagname("frame")(1).contentwindow.document 'frame containing multiViewDetail.aspx
+        Dim bIframeDoc As mshtml.IHTMLDocument2 = mvdFrameDoc.getelementsbytagname("iframe")(0).contentwindow.document 'frame containing blank.htm
+        With bIframeDoc
+            .getelementbyid("TimeFormControl_ClientCode_TEXTClientCode_Input").value = Globals.ClientCode
+            .getelementbyid("TimeFormControl_MatterCode_TEXTMatterCode_Input").value = Globals.AssgnCode
+            .getelementbyid("TimeFormControl_TransactionDate_TEXTTransactionDate_Input").value = theDay
+            .getelementbyid("TimeFormControl_BaseHours_TEXTBaseHours").value = Globals.Hours
+            .getelementbyid("NarrativeTextBox").value = "Entered by TimeBot"
+            .getelementbyid("TimeFormControl_LocationCode_TextLocationCode_Input").setattribute("value", Globals.LocationCode.ToString)
+            .getelementbyid("TimeFormControl_LocationCode_TextLocationCode_InputText").setattribute("value", "260 - TX - GT Dallas Office".ToString)
+            .getelementbyid("TimeFormControl_LocationCode_EXPANSIONLocationCode").innertext = "TX - GT Dallas Office"
+
+            '''''TODO can't get the location code to accept the input...  it looks like it needs to do some kind of validation of the code via javascript
+            '''''but i can't find the right javascript function to call.  below is where i tried to emulate clicking drop-down.  might work.
+
+            'Dim locDropDown As mshtml.IHTMLElement = .getelementbyid("TimeFormControl_LocationCode_TEXTLocationCodeDropDownTable")
+            'Dim savedLocations As mshtml.IHTMLElementCollection = locDropDown.children
+            'For Each savedLocation As mshtml.IHTMLElement In savedLocations
+            '    If savedLocation.innerText Like "*" & Globals.LocationCode & "*" And LCase(savedLocation.tagName) = "td" Then
+            '        savedLocation.click()
+            '        Exit For
+            '    End If
+            'Next
+            .getelementbyid("SubmitButton").click()
+            'locDropDown = Nothing
+            'savedLocations = Nothing
+            waitForPageLoad()
+        End With
+        mvfsIFrameDoc = Nothing
+        mvdFrameDoc = Nothing
+        bIframeDoc = Nothing
     End Sub
 #End Region
 

@@ -8,12 +8,12 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("timeEntryBot")>
-<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyTitle("TimeBot")>
+<Assembly: AssemblyDescription("A program to automatically enter time")>
 <Assembly: AssemblyCompany("Grant Thornton LLP")>
-<Assembly: AssemblyProduct("timeEntryBot")>
-<Assembly: AssemblyCopyright("Copyright © Grant Thornton LLP 2017")>
-<Assembly: AssemblyTrademark("")>
+<Assembly: AssemblyProduct("TimeBot")>
+<Assembly: AssemblyCopyright("None")>
+<Assembly: AssemblyTrademark("None")>
 
 <Assembly: ComVisible(False)>
 
