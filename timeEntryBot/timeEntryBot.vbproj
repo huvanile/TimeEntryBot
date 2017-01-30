@@ -89,6 +89,7 @@
     <Compile Include="Globals.vb" />
     <Compile Include="Helpers\CMSHelpers.vb" />
     <Compile Include="Helpers\DataValidationHelpers.vb" />
+    <Compile Include="Helpers\EncryptionHelper.vb" />
     <Compile Include="Helpers\RegistryHelpers.vb" />
     <Compile Include="Helpers\XMLHelper.vb" />
     <Compile Include="Models\Browser.vb" />
