@@ -103,24 +103,13 @@ Public Class Browser
             .getelementbyid("TimeFormControl_TransactionDate_TEXTTransactionDate_Input").value = theDay
             .getelementbyid("TimeFormControl_BaseHours_TEXTBaseHours").value = Globals.Hours
             .getelementbyid("NarrativeTextBox").value = "Entered by TimeBot"
-            .getelementbyid("TimeFormControl_LocationCode_TextLocationCode_Input").setattribute("value", Globals.LocationCode.ToString)
-            .getelementbyid("TimeFormControl_LocationCode_TextLocationCode_InputText").setattribute("value", "260 - TX - GT Dallas Office".ToString)
-            .getelementbyid("TimeFormControl_LocationCode_EXPANSIONLocationCode").innertext = "TX - GT Dallas Office"
 
-            '''''TODO can't get the location code to accept the input...  it looks like it needs to do some kind of validation of the code via javascript
-            '''''but i can't find the right javascript function to call.  below is where i tried to emulate clicking drop-down.  might work.
+            'this works, but need to add to it to check for the right location code. right now it just grabs the top one in the drop-down.
+            .getelementbyid("TimeFormControl_LocationCode_TEXTLocationCode_Image_Image").click : Threading.Thread.Sleep(1000)
+            SendKeys.Send("{DOWN}") : Threading.Thread.Sleep(1000)
+            SendKeys.Send("{ENTER}") : Threading.Thread.Sleep(1000)
 
-            'Dim locDropDown As mshtml.IHTMLElement = .getelementbyid("TimeFormControl_LocationCode_TEXTLocationCodeDropDownTable")
-            'Dim savedLocations As mshtml.IHTMLElementCollection = locDropDown.children
-            'For Each savedLocation As mshtml.IHTMLElement In savedLocations
-            '    If savedLocation.innerText Like "*" & Globals.LocationCode & "*" And LCase(savedLocation.tagName) = "td" Then
-            '        savedLocation.click()
-            '        Exit For
-            '    End If
-            'Next
-            .getelementbyid("SubmitButton").click()
-            'locDropDown = Nothing
-            'savedLocations = Nothing
+            .getelementbyid("SubmitButton").click() : Threading.Thread.Sleep(1000)
             waitForPageLoad()
         End With
         mvfsIFrameDoc = Nothing
